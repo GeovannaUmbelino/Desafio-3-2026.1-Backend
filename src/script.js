@@ -9,15 +9,47 @@ function changeText(id, text) {
 
 // Daqui para baixo voce ira escrever
 // o código para resolver o desafio
+let pokemonList = [];
+let currentIndex = 0;
+
+async function loadPokemonList() {
+  const response = await fetch("https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1292");
+  const data = await response.json();
+  pokemonList = data.results; 
+  
+  updateUI(); 
+}
+
+async function fetchPokemon(name) {
+  const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
+  const data = await response.json();
+  return data;
+}
+
+async function updateUI(id) {
+  if (pokemonList.length === 0) return;
+  
+  const currentPokemonName = pokemonList[currentIndex].name;
+  const pokemon = await fetchPokemon(currentPokemonName);
+  
+  changeText("name", pokemon.name.toUpperCase());
+  changeImage("img_sprite_front_default", pokemon.sprites.front_default);  
+}
 
 function previousPokemon() {
-  alert("Pokemon Anterior");
-  //abra o terminal em inspecionar no chrome para visualizar
-  console.log("Pokemon Anterior");
+  currentIndex--;
+  if (currentIndex < 0) {
+    currentIndex = pokemonList.length - 1;
+  }
+  updateUI();
 }
 
 function nextPokemon() {
-  alert("Pokemon Seguinte");
-  //abra o terminal em inspecionar no chrome para visualizar
-  console.log("Pokemon Seguinte");
+  currentIndex++;
+  if (currentIndex >= pokemonList.length) {
+    currentIndex = 0;
+  }
+
+  updateUI();
 }
+loadPokemonList();
